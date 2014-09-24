@@ -1,0 +1,11 @@
+{
+  "name": "ldap-example",
+  "version": "0.0.1",
+  "dependencies": {
+    "ldapjs":"0.7.1"
+  },
+  "engines": {
+    "node": "0.8.x",
+    "npm": "1.1.x"
+  }
+}
