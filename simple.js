@@ -18,7 +18,7 @@ function authorize(req, res, next) {
 }
 
 var foo = {
-  dn: 'cn=foo,ou=users,o=atlas',
+  dn: 'cn=foo,ou=users,o=atlas,o=xtrac',
   attributes: {
     cn: 'foo',
     uid: 1,
@@ -29,9 +29,31 @@ var foo = {
 };
 
 var bar = {
-  dn: 'cn=bar,ou=users,o=atlas',
+  dn: 'cn=bar,ou=users,o=atlas,o=xtrac',
   attributes: {
     cn: 'bar',
+    uid: 2,
+    gid: 'wheel',
+    description: 'another user',
+    objectClass: 'xtracUser'
+  }
+};
+
+var baz = {
+  dn: 'cn=baz,ou=users,o=beefy,o=xtrac',
+  attributes: {
+    cn: 'baz',
+    uid: 2,
+    gid: 'wheel',
+    description: 'another user',
+    objectClass: 'xtracUser'
+  }
+};
+
+var baz2 = {
+  dn: 'cn=baz,ou=users,o=atlas,o=xtrac',
+  attributes: {
+    cn: 'baz',
     uid: 2,
     gid: 'wheel',
     description: 'another user',
@@ -43,6 +65,8 @@ var bar = {
 var users = {};
 users['foo'] = foo;
 users['bar'] = bar;
+users['baz'] = baz;
+users['baz2'] = baz2;
 
 function loadUsers(req, res, next) {
   req.users = users;
@@ -50,12 +74,14 @@ function loadUsers(req, res, next) {
 }
 
 function dump(req, res, next) {
+  console.log(req.json);
+  console.log(req.dn.rdns);
   return next();
 }
 
 var pre = [authorize, loadUsers, dump];
 
-server.search('o=atlas', pre, function(req, res, next) {
+server.search('o=xtrac', pre, function(req, res, next) {
 
   Object.keys(req.users).forEach(function(k) {
     if (req.filter.matches(req.users[k].attributes))
