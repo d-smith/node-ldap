@@ -49,7 +49,11 @@ function loadUsers(req, res, next) {
   return next();
 }
 
-var pre = [authorize, loadUsers];
+function dump(req, res, next) {
+  return next();
+}
+
+var pre = [authorize, loadUsers, dump];
 
 server.search('o=atlas', pre, function(req, res, next) {
 
