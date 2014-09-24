@@ -3,8 +3,14 @@ var ldap = require('ldapjs');
 var server = ldap.createServer();
 
 server.bind('cn=xtrac', function(req, res, next) {
-  if (req.dn.toString() !== 'cn=xtrac' || req.credentials !== 'secret')
-    return next(new ldap.InvalidCredentialsError());
+  try {
+    if (req.dn.toString() !== 'cn=xtrac' || req.credentials !== 'secret')
+      return next(new ldap.InvalidCredentialsError());
+
+
+  } catch(err) {
+    console.log('caught err: ' + err);
+  }
 
   res.end();
   return next();
@@ -43,7 +49,7 @@ var baz = {
   dn: 'cn=baz,ou=users,o=beefy,o=xtrac',
   attributes: {
     cn: 'baz',
-    uid: 2,
+    uid: 1,
     gid: 'wheel',
     description: 'another user',
     objectClass: 'xtracUser'
@@ -54,7 +60,7 @@ var baz2 = {
   dn: 'cn=baz,ou=users,o=atlas,o=xtrac',
   attributes: {
     cn: 'baz',
-    uid: 2,
+    uid: 3,
     gid: 'wheel',
     description: 'another user',
     objectClass: 'xtracUser'
@@ -74,16 +80,25 @@ function loadUsers(req, res, next) {
 }
 
 function dump(req, res, next) {
+  console.log(req.dn);
+  console.log('filter ' + req.filter);
   console.log(req.json);
-  console.log(req.dn.rdns);
+  console.log(req.dn.toString());
   return next();
 }
 
 var pre = [authorize, loadUsers, dump];
 
+server.search('', pre, function(req, res, next) {
+  console.log('root search');
+  res.end();
+  return next();
+});
+
 server.search('o=xtrac', pre, function(req, res, next) {
 
   Object.keys(req.users).forEach(function(k) {
+    console.log(k);
     if (req.filter.matches(req.users[k].attributes))
       res.send(req.users[k]);
   });
